@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金屬重量計算器</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #222222;
+            --card: #f7f8fa;
+            --border: #dddddd;
+            --btn-bg: #2563eb;
+            --btn-text: white;
+        }
+        .dark-mode {
+            --bg: #1a1a22;
+            --text: #f0f0f0;
+            --card: #272733;
+            --border: #383848;
+            --btn-bg: #3b82f6;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s all ease;
+            padding: 20px;
+        }
+        .box {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 22px;
+        }
+        #themeBtn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+        }
+        .item {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+        }
+        #calcBtn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <div class="header">
+        <h2>金屬重量計算器</h2>
+        <button id="themeBtn">切換深色模式</button>
+    </div>
+
+    <div class="item">
+        <label>材質</label>
+        <select id="material">
+            <option value="7.85">普通碳鋼 (7.85g/cm³)</option>
+        </select>
+    </div>
+
+    <div class="item">
+        <label>外型</label>
+        <select id="shape">
+            <option value="round">實心圓棒</option>
+        </select>
+    </div>
+
+    <div class="item">
+        <label>直徑 d (mm)</label>
+        <input type="number" id="d" placeholder="輸入直徑">
+    </div>
+
+    <div class="item">
+        <label>長度 L (mm)</label>
+        <input type="number" id="L" placeholder="輸入長度">
+    </div>
+
+    <button id="calcBtn">計算重量</button>
+
+    <div class="result" id="resultBox"></div>
+</div>
+
+<script>
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        themeBtn.innerText = document.body.classList.contains('dark-mode')
+            ? '切換淺色模式'
+            : '切換深色模式';
+    });
+
+    const calcBtn = document.getElementById('calcBtn');
+    calcBtn.addEventListener('click', ()=>{
+        const density = Number(document.getElementById('material').value);
+        const d = Number(document.getElementById('d').value);
+        const L = Number(document.getElementById('L').value);
+        const resBox = document.getElementById('resultBox');
+
+        if(!d || !L){
+            resBox.innerText = '請完整輸入直徑與長度';
+            return;
+        }
+        const radiusCm = (d / 2) / 10;
+        const lengthCm = L / 10;
+        const volume = Math.PI * radiusCm * radiusCm * lengthCm;
+        const weightKg = volume * density / 1000;
+
+        resBox.innerText = `計算重量：${weightKg.toFixed(4)} kg`;
+    })
+</script>
+</body>
+</html>
