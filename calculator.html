@@ -1,43 +1,165 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>简易计算器</title>
-<style>
-*{margin: 15px;font-size: 20px;}
-body{text-align: center;margin-top: 80px;background:#f4f5f7;}
-input{width: 120px;padding: 6px;border: 1px solid #ccc;border-radius:4px;}
-select{padding:6px;}
-button{padding: 6px 16px;background:#1d4ed8;color:#fff;border:none;border-radius:4px;cursor:pointer;}
-#res{color:#1d4ed8;font-weight:bold;margin-left:10px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .calculator {
+            background: #222;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        #display {
+            width: 100%;
+            padding: 20px 15px;
+            margin-bottom: 15px;
+            font-size: 32px;
+            text-align: right;
+            border: none;
+            border-radius: 12px;
+            background-color: #f8f8f8;
+            outline: none;
+        }
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            gap: 12px;
+        }
+        button {
+            width: 70px;
+            height: 70px;
+            font-size: 22px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        button:active {
+            opacity: 0.7;
+        }
+        .num {
+            background: #fff;
+        }
+        .operate {
+            background: #ff9500;
+            color: white;
+        }
+        .func {
+            background: #a5a5a5;
+        }
+        .zero {
+            grid-column: span 2;
+            border-radius: 35px;
+            width: auto;
+        }
+    </style>
 </head>
 <body>
-<h2>简易计算器</h2>
-<input type="text" id="num1" placeholder="输入数字">
-<select id="op">
-<option>+</option>
-<option>-</option>
-<option>*</option>
-<option>/</option>
-</select>
-<input type="text" id="num2" placeholder="输入数字">
-<button onclick="calc()">=</button>
-<span id="res"></span>
+<div class="calculator">
+    <input type="text" id="display" readonly value="0">
+    <div class="btn-group">
+        <button class="func" onclick="clearAll()">AC</button>
+        <button class="func" onclick="reverse()">+/-</button>
+        <button class="func" onclick="percent()">%</button>
+        <button class="operate" onclick="setOp('/')">÷</button>
+
+        <button class="num" onclick="appendNum('7')">7</button>
+        <button class="num" onclick="appendNum('8')">8</button>
+        <button class="num" onclick="appendNum('9')">9</button>
+        <button class="operate" onclick="setOp('*')">×</button>
+
+        <button class="num" onclick="appendNum('4')">4</button>
+        <button class="num" onclick="appendNum('5')">5</button>
+        <button class="num" onclick="appendNum('6')">6</button>
+        <button class="operate" onclick="setOp('-')">-</button>
+
+        <button class="num" onclick="appendNum('1')">1</button>
+        <button class="num" onclick="appendNum('2')">2</button>
+        <button class="num" onclick="appendNum('3')">3</button>
+        <button class="operate" onclick="setOp('+')">+</button>
+
+        <button class="num zero" onclick="appendNum('0')">0</button>
+        <button class="num" onclick="appendNum('.')">.</button>
+        <button class="operate" colspan="2" onclick="calcResult()">=</button>
+    </div>
+</div>
 
 <script>
-function calc(){
-let a=Number(document.getElementById('num1').value);
-let b=Number(document.getElementById('num2').value);
-let op=document.getElementById('op').value;
-let ans;
-if(op==="+") ans=a+b;
-else if(op==="-") ans=a-b;
-else if(op==="*") ans=a*b;
-else ans=a/b;
-document.getElementById('res').innerText = `结果：${ans}`;
-}
+    let num1 = '';
+    let num2 = '';
+    let operator = '';
+    let flag = false;
+    const input = document.getElementById('display');
+
+    // 輸入數字
+    function appendNum(n) {
+        if (flag) {
+            input.value = '';
+            flag = false;
+        }
+        if (n === '.' && input.value.includes('.')) return;
+        input.value += n;
+    }
+
+    // 清除全部
+    function clearAll() {
+        input.value = '0';
+        num1 = '';
+        num2 = '';
+        operator = '';
+        flag = false;
+    }
+
+    // 正負切換
+    function reverse() {
+        input.value = String(parseFloat(input.value) * -1);
+    }
+
+    // 百分比
+    function percent() {
+        input.value = String(parseFloat(input.value) / 100);
+    }
+
+    // 選取運算子
+    function setOp(op) {
+        num1 = input.value;
+        operator = op;
+        flag = true;
+    }
+
+    // 計算結果
+    function calcResult() {
+        if (!operator || flag) return;
+        num2 = input.value;
+        let res;
+        const n1 = parseFloat(num1);
+        const n2 = parseFloat(num2);
+        switch (operator) {
+            case '+': res = n1 + n2; break;
+            case '-': res = n1 - n2; break;
+            case '*': res = n1 * n2; break;
+            case '/':
+                res = n2 === 0 ? '錯誤' : n1 / n2;
+                break;
+        }
+        input.value = res;
+        flag = true;
+    }
 </script>
 </body>
 </html>
