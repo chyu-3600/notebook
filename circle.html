@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📐 圓切線幾何計算器</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f2f3f5;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
+  --border:#d2d2d7;--border2:#e5e5ea;--accent:#0071e3;--accent-hover:#0077ed;
+  --accent-light:#e8f0fe;--shadow:0 1px 3px rgba(0,0,0,.08);
+  --sv-bg:#f8f9fa;--sv-stroke:#333;--sv-dim:#0071e3;--sv-text:#333;
+  --sv-circle:#ff6b35;--sv-line:#2563eb;--sv-ext:#e5e5ea;
+  --tag-bg:#f0f0f5;--input-bg:#fafafa;--result-bg:linear-gradient(135deg,#0071e3,#5856d6);
+}
+body.dark{
+  --bg:#1c1c1e;--card:#2c2c2e;--text:#f5f5f7;--text2:#98989d;--text3:#636366;
+  --border:#3a3a3c;--border2:#48484a;--accent:#0a84ff;--accent-hover:#409cff;
+  --accent-light:#1c3a5e;--shadow:0 1px 3px rgba(0,0,0,.3);
+  --sv-bg:#2a2a2e;--sv-stroke:#aaa;--sv-dim:#0a84ff;--sv-text:#ccc;
+  --sv-circle:#ff9f0a;--sv-line:#5e9eff;--sv-ext:#3a3a3c;
+  --tag-bg:#3a3a3c;--input-bg:#3a3a3c;--result-bg:linear-gradient(135deg,#0a84ff,#5e5ce6);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .35s,color .35s;display:flex;justify-content:center;padding:28px}
+.container{max-width:680px;width:100%}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.header h1{font-size:22px;font-weight:700;display:flex;align-items:center;gap:8px}
+.header h1 small{font-size:13px;font-weight:400;color:var(--text3)}
+.theme-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s}
+.theme-btn:hover{border-color:var(--accent)}
+.card{background:var(--card);border-radius:16px;padding:26px 30px;margin-bottom:18px;box-shadow:var(--shadow);border:1px solid var(--border);transition:all .35s}
+label{display:block;font-size:14px;font-weight:600;color:var(--text2);margin-bottom:10px;letter-spacing:.5px}
+label .hint{font-weight:400;font-size:12px;color:var(--text3);margin-left:4px}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:10px}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border2);outline:none;margin-top:4px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.input-group input[type=number]{width:100%;padding:13px 16px;border:1.5px solid var(--border2);border-radius:10px;background:var(--input-bg);color:var(--text);font-size:17px;font-weight:500;outline:none;transition:border-color .2s}
+.input-group input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,113,227,.12)}
+.slider-row{display:flex;align-items:center;gap:14px;margin-top:10px}
+.slider-row input[type=range]{flex:1}
+.slider-val{min-width:52px;text-align:right;font-size:15px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+
+/* SVG Preview */
+.sv-wrap{background:var(--sv-bg);border-radius:14px;padding:24px;text-align:center;min-height:260px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border2);transition:all .35s}
+.sv-wrap svg{max-width:100%;height:auto}
+.sv-foot{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--text3)}
+
+/* Result */
+.result-area{background:var(--result-bg);border-radius:16px;padding:28px 32px;text-align:center;position:relative;overflow:hidden;margin-bottom:4px}
+.result-area::before{content:'';position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:rgba(255,255,255,.07);border-radius:50%}
+.result-area .rlabel{color:rgba(255,255,255,.75);font-size:15px;font-weight:500;letter-spacing:.8px;position:relative;z-index:1;margin-bottom:8px}
+.result-area .rval{color:#fff;font-size:42px;font-weight:700;margin:8px 0;position:relative;z-index:1}
+.result-area .rval .dec{font-size:22px;font-weight:500}
+.result-area .runit{color:rgba(255,255,255,.6);font-size:14px;position:relative;z-index:1}
+.result-area .rdetail{color:rgba(255,255,255,.5);font-size:13px;margin-top:8px;position:relative;z-index:1}
+
+/* Formula card */
+.formula-box{padding:16px 22px;background:var(--tag-bg);border-radius:12px;font-size:15px;color:var(--text2);text-align:center;font-family:'SF Mono',Menlo,monospace;transition:all .35s;line-height:1.8}
+.formula-box strong{color:var(--accent)}
+
+@media(max-width:500px){.card{padding:20px 18px}.input-row{grid-template-columns:1fr;gap:16px}.result-area .rval{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📐 圓切線幾何 <small>頂點 → 圓心距離</small></h1>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </div>
+
+  <!-- Input -->
+  <div class="card">
+    <div class="input-row">
+      <div class="input-group">
+        <label>圓直徑 <span class="hint">(D)</span></label>
+        <input type="number" id="inpD" value="3" step="0.01" min="0.05" max="20" oninput="syncSlider()">
+        <div class="slider-row">
+          <input type="range" id="sliderD" min="0.05" max="20" step="0.01" value="3" oninput="syncInput()">
+          <span class="slider-val" id="svD">3.00</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>夾角 <span class="hint">(θ)</span></label>
+        <input type="number" id="inpA" value="90" step="1" min="1" max="179" oninput="syncSliderA()">
+        <div class="slider-row">
+          <input type="range" id="sliderA" min="1" max="179" step="1" value="90" oninput="syncInputA()">
+          <span class="slider-val" id="svA">90°</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="card">
+    <div class="sv-wrap" id="svWrap">
+      <svg id="previewSvg" viewBox="0 0 400 320" width="400" height="320"></svg>
+    </div>
+    <div class="sv-foot">
+      <span>🔵 圓半徑 r = <span id="svRadius">1.50</span> mm</span>
+      <span>📐 半角 θ/2 = <span id="svHalfAngle">45.0</span>°</span>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-area">
+    <div class="rlabel">📏 頂點 → 圓心距離</div>
+    <div class="rval"><span id="resInt">2.12</span></div>
+    <div class="runit">mm</div>
+    <div class="rdetail" id="resDetail">D = 3.00 mm &nbsp;·&nbsp; θ = 90° &nbsp;·&nbsp; r/sin(θ/2)</div>
+  </div>
+
+  <!-- Formula -->
+  <div class="card">
+    <div class="formula-box">
+      <strong>公式：</strong> 距離 = r ÷ sin(θ/2) &nbsp;=&nbsp; <span id="formulaDetail">1.50 ÷ sin(45.0°) = 2.12 mm</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let theme = localStorage.getItem('geomTheme') || 'light';
+document.body.className = theme;
+document.getElementById('themeBtn').textContent = theme==='dark'?'☀️':'🌙';
+function toggleTheme(){
+  theme = theme==='light'?'dark':'light';
+  document.body.className = theme;
+  document.getElementById('themeBtn').textContent = theme==='dark'?'☀️':'🌙';
+  localStorage.setItem('geomTheme',theme);
+  renderPreview();
+}
+
+function syncInput(){
+  const d = parseFloat(document.getElementById('sliderD').value);
+  document.getElementById('inpD').value = d.toFixed(2);
+  document.getElementById('svD').textContent = d.toFixed(2);
+  calc();
+}
+function syncSlider(){
+  let d = parseFloat(document.getElementById('inpD').value);
+  if(isNaN(d)||d<0.05)d=0.05;if(d>20)d=20;
+  document.getElementById('sliderD').value = d;
+  document.getElementById('svD').textContent = d.toFixed(2);
+  calc();
+}
+function syncInputA(){
+  const a = parseFloat(document.getElementById('sliderA').value);
+  document.getElementById('inpA').value = a;
+  document.getElementById('svA').textContent = a+'°';
+  calc();
+}
+function syncSliderA(){
+  let a = parseFloat(document.getElementById('inpA').value);
+  if(isNaN(a)||a<1)a=1;if(a>179)a=179;
+  document.getElementById('sliderA').value = a;
+  document.getElementById('svA').textContent = a+'°';
+  calc();
+}
+
+function calc(){
+  const D = parseFloat(document.getElementById('inpD').value) || 0.05;
+  const deg = parseFloat(document.getElementById('inpA').value) || 90;
+  const rad = D/2;
+  const halfDeg = deg/2;
+  const halfRad = halfDeg*Math.PI/180;
+  const dist = rad / Math.sin(halfRad);
+
+  document.getElementById('svRadius').textContent = rad.toFixed(2);
+  document.getElementById('svHalfAngle').textContent = halfDeg.toFixed(1);
+
+  const intPart = Math.floor(dist);
+  const decPart = dist - intPart;
+  document.getElementById('resInt').textContent = dist.toFixed(2);
+  document.getElementById('resDetail').textContent = `D = ${D.toFixed(2)} mm  ·  θ = ${deg}°  ·  r/sin(θ/2)`;
+  document.getElementById('formulaDetail').textContent =
+    `${rad.toFixed(2)} ÷ sin(${halfDeg.toFixed(1)}°) = ${dist.toFixed(2)} mm`;
+
+  renderPreview();
+}
+
+function renderPreview(){
+  const D = parseFloat(document.getElementById('inpD').value) || 3;
+  const deg = parseFloat(document.getElementById('inpA').value) || 90;
+  const r = D/2;
+  const halfDeg = deg/2;
+  const dist = r / Math.sin(halfDeg*Math.PI/180);
+
+  const isDark = theme==='dark';
+  const clr = isDark?'#aaa':'#444';
+  const dimClr = isDark?'#0a84ff':'#0071e3';
+  const circleClr = isDark?'#ff9f0a':'#ff6b35';
+  const lineClr = isDark?'#5e9eff':'#2563eb';
+  const bgClr = isDark?'#2a2a2e':'#f8f9fa';
+
+  // Layout: vertex near top, circle fills available space
+  const cx = 200, cy = 55;    // vertex
+  const availH = 230;          // available vertical space
+  const totalNeeded = dist + r + 12;
+  let scale = availH / totalNeeded;
+  if (scale > 7) scale = 7;   // cap to prevent excessive zoom
+  if (scale < 0.5) scale = 0.5;
+  const pixelDist = dist * scale;
+  const pixelR = r * scale;
+
+  // Circle center on angle bisector (vertical down)
+  const cX = cx, cY = cy + pixelDist;
+
+  // Tangent points
+  const halfRad = halfDeg * Math.PI / 180;
+  // Points tangent to the two lines - perpendicular to each line from center
+  // Line direction angles: -halfDeg and +halfDeg from vertical
+  const ang1 = -halfRad;  // left line angle from vertical
+  const ang2 = halfRad;   // right line angle from vertical
+
+  // Tangent point = center + radius * perpendicular direction to line
+  // Perpendicular to left line (rotate 90° counterclockwise from line direction)
+  // Left line direction: (sin(ang1), cos(ang1)) - going down from vertex
+  // Perpendicular left: (-cos(ang1), sin(ang1))
+  const perp1x = -Math.cos(ang1), perp1y = Math.sin(ang1);
+  // Tangent point 1
+  const t1x = cX + pixelR * perp1x, t1y = cY + pixelR * perp1y;
+  // Tangent point 2
+  const perp2x = -Math.cos(ang2), perp2y = Math.sin(ang2);
+  const t2x = cX + pixelR * perp2x, t2y = cY + pixelR * perp2y;
+
+  // End points of lines (extend beyond tangent points)
+  const ext = 200;
+  const l1ex = cx + ext * Math.sin(ang1), l1ey = cy + ext * Math.cos(ang1);
+  const l2ex = cx + ext * Math.sin(ang2), l2ey = cy + ext * Math.cos(ang2);
+
+  let svg = `<svg viewBox="0 0 400 320" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="320" fill="${bgClr}" rx="4"/>
+    <defs>
+      <marker id="arr1" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+        <path d="M0,0 L10,5 L0,10 Z" fill="${dimClr}"/>
+      </marker>
+      <marker id="arr2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+        <path d="M0,0 L10,5 L0,10 Z" fill="${dimClr}"/>
+      </marker>
+    </defs>
+    <!-- Lines -->
+    <line x1="${cx}" y1="${cy}" x2="${l1ex}" y2="${l1ey}" stroke="${lineClr}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="${cx}" y1="${cy}" x2="${l2ex}" y2="${l2ey}" stroke="${lineClr}" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Circle -->
+    <circle cx="${cX}" cy="${cY}" r="${pixelR}" fill="none" stroke="${circleClr}" stroke-width="2.5"/>
+    <circle cx="${cX}" cy="${cY}" r="${pixelR}" fill="${circleClr}" opacity=".12"/>
+    <!-- Center dot -->
+    <circle cx="${cX}" cy="${cY}" r="3.5" fill="${circleClr}" stroke="#fff" stroke-width="1.5"/>
+    <!-- Vertex dot -->
+    <circle cx="${cx}" cy="${cy}" r="4" fill="${lineClr}" stroke="#fff" stroke-width="1.5"/>
+    <!-- Tangent points -->
+    <circle cx="${t1x}" cy="${t1y}" r="2.5" fill="#fff" stroke="${clr}" stroke-width="1"/>
+    <circle cx="${t2x}" cy="${t2y}" r="2.5" fill="#fff" stroke="${clr}" stroke-width="1"/>
+    <!-- Tangent line markers -->
+    <line x1="${t1x-8}" y1="${t1y}" x2="${t1x+8}" y2="${t1y}" stroke="${clr}" stroke-width=".8" stroke-dasharray="2,2"/>
+    <line x1="${t2x-8}" y1="${t2y}" x2="${t2x+8}" y2="${t2y}" stroke="${clr}" stroke-width=".8" stroke-dasharray="2,2"/>`;
+
+  // Angle arc
+  const arcR = 35;
+  svg += `<path d="M ${cx + arcR*Math.sin(ang1)} ${cy + arcR*Math.cos(ang1)} A ${arcR} ${arcR} 0 0 1 ${cx + arcR*Math.sin(ang2)} ${cy + arcR*Math.cos(ang2)}" fill="none" stroke="${dimClr}" stroke-width="1.5"/>`;
+  const labelRx = cx + (arcR+14) * Math.sin(halfRad) + 25, labelRy = cy + (arcR+14) * Math.cos(halfRad);
+  svg += `<text x="${labelRx}" y="${labelRy}" fill="${dimClr}" font-size="13" font-weight="600" text-anchor="middle" dominant-baseline="middle">${deg}°</text>`;
+
+  // Dimension: vertex to center
+  const dimOff = -45;
+  svg += `<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cY+5}" stroke="${dimClr}" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>`;
+  svg += `<line x1="${dimOff}" y1="${cy}" x2="${dimOff-10}" y2="${cy}" stroke="${dimClr}" stroke-width="1" marker-end="url(#arr1)"/>`;
+  svg += `<line x1="${dimOff}" y1="${cY}" x2="${dimOff-10}" y2="${cY}" stroke="${dimClr}" stroke-width="1" marker-end="url(#arr2)"/>`;
+  svg += `<line x1="${dimOff}" y1="${cy}" x2="${dimOff}" y2="${cY}" stroke="${dimClr}" stroke-width="1" stroke-dasharray="3,2"/>`;
+  const dimMid = (cy + cY)/2;
+  svg += `<text x="${dimOff-14}" y="${dimMid}" fill="${dimClr}" font-size="13" font-weight="600" text-anchor="end" dominant-baseline="middle" transform="rotate(-90,${dimOff-14},${dimMid})">${dist.toFixed(2)}</text>`;
+
+  // Diameter dimension on circle
+  const diaOffX = cX + pixelR + 18;
+  svg += `<text x="${cX}" y="${cY - pixelR - 8}" fill="${circleClr}" font-size="12" font-weight="600" text-anchor="middle">Ø${D.toFixed(2)}</text>`;
+  svg += `<line x1="${cX}" y1="${cY - pixelR}" x2="${cX}" y2="${cY + pixelR}" stroke="${circleClr}" stroke-width="1.2" stroke-dasharray="3,3" opacity=".5"/>`;
+
+  // Labels — pushed apart to avoid crowding
+  svg += `<text x="${cx}" y="${cy-22}" fill="${lineClr}" font-size="13" font-weight="600" text-anchor="middle">頂點</text>`;
+  svg += `<text x="${cX}" y="${cY+32}" fill="${circleClr}" font-size="13" font-weight="600" text-anchor="middle">圓心</text>`;
+
+  // Legend
+  svg += `<rect x="12" y="${320-50}" width="110" height="38" rx="6" fill="${isDark?'rgba(0,0,0,.3)':'rgba(255,255,255,.85)'}" stroke="${isDark?'#444':'#ddd'}" stroke-width=".8"/>`;
+  svg += `<circle cx="26" cy="${320-33}" r="4" fill="${circleClr}"/><text x="34" y="${320-30}" fill="${clr}" font-size="11">圓 D = ${D.toFixed(2)} mm</text>`;
+  svg += `<text x="24" y="${320-16}" fill="${dimClr}" font-size="10" font-weight="600">距離 = ${dist.toFixed(2)} mm</text>`;
+
+  svg += '</svg>';
+  document.getElementById('previewSvg').innerHTML = svg;
+}
+
+// Init
+calc();
+</script>
+</body>
+</html>
