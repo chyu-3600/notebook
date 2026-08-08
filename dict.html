@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App、小程序、Web應用對照表</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system;margin:20px;line-height:1.6;background:#f7f8fa;color:#222;}
+h1{text-align:center;margin-bottom:24px;font-size:22px;}
+.container{max-width:900px;margin:0 auto;}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px #00000015;}
+h2{font-size:18px;margin-bottom:10px;color:#2563eb;}
+ul{padding-left:22px;}
+li{margin:6px 0;}
+@media (prefers-color-scheme: dark){
+body{background:#121212;color:#eee;}
+.card{background:#1e1e1e;}
+h2{color:#60a5fa;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>App / 小程序 / Web應用差異</h1>
+
+<div class="card">
+<h2>📱 原生App（手機應用程式）</h2>
+<ul>
+<li>需要從應用商店下載安裝到手機</li>
+<li>效能最好，可以完整使用手機硬體：相機、定位、通知、藍牙</li>
+<li>可離線使用部分功能</li>
+<li>開發成本高，Android、iOS要分別開發</li>
+<li>更新要重新下載安裝包</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>💬 小程序</h2>
+<ul>
+<li>依附於母App（微信等），不用下載安裝，點開就用</li>
+<li>體積有限制，受平台規則約束</li>
+<li>可以取得部分手機權限，離線能力有限</li>
+<li>開發成本中等，一套程式多端可用</li>
+<li>平台審核，不能完全自由，更新不用使用者下載</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>🌐 Web應用（網頁）</h2>
+<ul>
+<li>瀏覽器直接打網址就可使用，完全不用安裝</li>
+<li>跨手機、電腦，所有裝置通用同一套</li>
+<li>開發成本低，修改後立刻生效</li>
+<li>硬體權限受限，離線功能較弱</li>
+<li>沒有應用商店審核，自由度最高</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>📌簡易選擇建議</h2>
+<ul>
+<li>追求完整手機功能、高流暢度 → 原生App</li>
+<li>希望降低使用門檻，依附大平台引流 → 小程序</li>
+<li>要跨裝置、快速迭代、免安裝 → Web網頁應用</li>
+</ul>
+</div>
+</div>
+</body>
+</html>
