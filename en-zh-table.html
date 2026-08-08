@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>電腦軟體操作｜中英文對照表｜可發音</title>
+<style>
+:root{
+--bg:#f7f9fc;
+--card:#ffffff;
+--text:#1a202c;
+--textSec:#4a5568;
+--border:#e2e8f0;
+--accent:#2563eb;
+--accentHover:#1d4ed8;
+--tagBg:#dbeafe;
+--tagColor:#1e40af;
+}
+[data-theme="dark"]{
+--bg:#0f172a;
+--card:#1e293b;
+--text:#f1f5f9;
+--textSec:#94a3b8;
+--border:#334155;
+--accent:#3b82f6;
+--accentHover:#2563eb;
+--tagBg:#1e3a5f;
+--tagColor:#93c5fd;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+background-color:var(--bg);
+color:var(--text);
+min-height:100vh;
+padding:24px 16px;
+transition: background 0.6s ease, color 0.6s ease;
+}
+.container{
+max-width:960px;
+margin:0 auto;
+}
+header{
+text-align:center;
+margin-bottom:28px;
+}
+h1{
+font-size:24px;
+margin-bottom:6px;
+}
+.tip{
+color:var(--textSec);
+font-size:14px;
+}
+.search-wrap{
+margin-bottom:24px;
+}
+#searchInput{
+width:100%;
+background:var(--card);
+color:var(--text);
+border:1px solid var(--border);
+border-radius:12px;
+padding:14px 16px;
+font-size:15px;
+}
+.category-title{
+font-size:18px;
+font-weight:700;
+margin:28px 0 12px;
+display:flex;
+align-items:center;
+gap:8px;
+}
+.table-wrap{
+border:1px solid var(--border);
+border-radius:14px;
+overflow:hidden;
+}
+table{
+width:100%;
+border-collapse:collapse;
+}
+th{
+background:var(--tagBg);
+color:var(--tagColor);
+text-align:left;
+padding:12px 16px;
+font-weight:600;
+}
+td{
+padding:12px 16px;
+border-top:1px solid var(--border);
+}
+tr:hover{
+background:rgba(120,144,180,0.08);
+}
+.en-word{
+cursor:pointer;
+text-decoration:underline dotted;
+}
+.en-word:active{
+opacity:0.6;
+}
+.toast{
+position:fixed;
+bottom:30px;
+left:50%;
+transform:translateX(-50%);
+background:#222;
+color:#fff;
+padding:10px 20px;
+border-radius:999px;
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+font-size:14px;
+}
+.toast.show{
+opacity:0.9;
+}
+.back-home{
+display:block;
+width:100%;
+max-width:420px;
+margin:40px auto 20px;
+padding:14px;
+background:#2563eb;
+color:#fff;
+text-align:center;
+text-decoration:none;
+border-radius:12px;
+font-size:17px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>電腦 & 軟件操作 中英文對照表</h1>
+<div class="tip">🌓自動日夜主題｜點擊英文單詞即可朗讀發音｜可搜尋</div>
+</header>
+
+<div class="search-wrap">
+<input id="searchInput" placeholder="輸入中文或英文關鍵字搜尋，例如：設置、save、reset">
+</div>
+
+<div id="contentWrap"></div>
+
+<a class="back-home" href="index.html">← 返回首頁</a>
+</div>
+<div class="toast" id="toast">正在發音…</div>
+
+<script>
+// 自動日夜切換
+function setAutoTheme(){
+const hour = new Date().getHours();
+const isNight = hour >=19 || hour <6;
+if(isNight){
+document.documentElement.setAttribute('data-theme','dark');
+}else{
+document.documentElement.removeAttribute('data-theme');
+}
+}
+setAutoTheme();
+setInterval(setAutoTheme, 60 * 60 * 1000);
+
+// 語音朗讀
+const toastEl = document.querySelector('#toast');
+let speech = window.speechSynthesis;
+
+function speakText(text){
+if(!speech) return;
+speech.cancel();
+let utter = new SpeechSynthesisUtterance(text);
+utter.lang = 'en-US';
+utter.rate = 0.95;
+toastEl.classList.add('show');
+utter.onend = ()=>{
+toastEl.classList.remove('show');
+}
+speech.speak(utter);
+}
+
+// 詞庫
+const wordData = [
+{
+category:"⚙️ 設置 / 設定 Setting",
+list:[
+{zh:"設置",en:"Settings"},
+{zh:"偏好設定",en:"Preferences"},
+{zh:"選項",en:"Options"},
+{zh:"配置",en:"Configuration / Config"},
+{zh:"進階設定",en:"Advanced Settings"},
+{zh:"一般設定",en:"General Settings"},
+{zh:"基本設定",en:"Basic Settings"},
+{zh:"快速設定",en:"Quick Settings"},
+{zh:"系統設定",en:"System Settings"},
+{zh:"使用者設定",en:"User Settings"},
+{zh:"應用程式設定",en:"App Settings"},
+{zh:"恢復預設值",en:"Restore Defaults"},
+{zh:"重設",en:"Reset"},
+{zh:"重設全部",en:"Reset All"},
+{zh:"儲存設定",en:"Save Settings"},
+{zh:"套用設定",en:"Apply Settings"},
+{zh:"取消設定變更",en:"Cancel Changes"},
+{zh:"匯出設定",en:"Export Settings"},
+{zh:"匯入設定",en:"Import Settings"},
+{zh:"隱私設定",en:"Privacy Settings"},
+{zh:"安全設定",en:"Security Settings"},
+{zh:"介面設定",en:"Interface Settings"},
+{zh:"主題設定",en:"Theme Settings"},
+{zh:"語言設定",en:"Language Settings / Locale"},
+{zh:"更新設定",en:"Update Settings"},
+{zh:"通知設定",en:"Notification Settings"},
+{zh:"音效設定",en:"Sound Settings"},
+{zh:"顯示設定",en:"Display Settings"},
+{zh:"快捷鍵設定",en:"Keyboard Shortcuts / Hotkeys"},
+{zh:"實驗性功能",en:"Experimental Features"}
+]
+},
+{
+category:"📄 檔案 File",
+list:[
+{zh:"新建",en:"New"},
+{zh:"開啟",en:"Open"},
+{zh:"儲存",en:"Save"},
+{zh:"另存新檔",en:"Save As"},
+{zh:"儲存全部",en:"Save All"},
+{zh:"關閉",en:"Close"},
+{zh:"關閉全部",en:"Close All"},
+{zh:"列印",en:"Print"},
+{zh:"匯出",en:"Export"},
+{zh:"匯入",en:"Import"},
+{zh:"屬性",en:"Properties"},
+{zh:"結束/退出",en:"Exit / Quit"}
+]
+},
+{
+category:"✏️ 編輯 Edit",
+list:[
+{zh:"復原",en:"Undo"},
+{zh:"重做",en:"Redo"},
+{zh:"剪下",en:"Cut"},
+{zh:"複製",en:"Copy"},
+{zh:"貼上",en:"Paste"},
+{zh:"選擇全部",en:"Select All"},
+{zh:"尋找",en:"Find"},
+{zh:"取代",en:"Replace"},
+{zh:"刪除",en:"Delete"},
+{zh:"清除",en:"Clear"}
+]
+},
+{
+category:"🪟 視窗 Window",
+list:[
+{zh:"最小化",en:"Minimize"},
+{zh:"最大化",en:"Maximize"},
+{zh:"還原視窗",en:"Restore"},
+{zh:"關閉視窗",en:"Close Window"},
+{zh:"分頁",en:"Tab"},
+{zh:"分割視窗",en:"Split View"},
+{zh:"全螢幕",en:"Full Screen"}
+]
+},
+{
+category:"🔘 介面按鈕通用",
+list:[
+{zh:"確定",en:"OK / Confirm"},
+{zh:"套用",en:"Apply"},
+{zh:"取消",en:"Cancel"},
+{zh:"下一步",en:"Next"},
+{zh:"上一步",en:"Previous / Back"},
+{zh:"完成",en:"Finish / Done"},
+{zh:"提交",en:"Submit"},
+{zh:"重試",en:"Retry"},
+{zh:"略過",en:"Skip"},
+{zh:"更多",en:"More"},
+{zh:"檢視",en:"View"},
+{zh:"幫助",en:"Help"}
+]
+},
+{
+category:"🌐 網路 & 連線 Network",
+list:[
+{zh:"連線",en:"Connect"},
+{zh:"中斷連線",en:"Disconnect"},
+{zh:"重新整理",en:"Refresh"},
+{zh:"重新載入",en:"Reload"},
+{zh:"清除快取",en:"Clear Cache"},
+{zh:"代理伺服器",en:"Proxy Server"},
+{zh:"離線模式",en:"Offline Mode"}
+]
+},
+{
+category:"💻 系統操作 System",
+list:[
+{zh:"執行",en:"Run / Execute"},
+{zh:"停止",en:"Stop"},
+{zh:"暫停",en:"Pause"},
+{zh:"繼續",en:"Resume"},
+{zh:"重新啟動",en:"Restart / Reboot"},
+{zh:"關機",en:"Shut Down / Power Off"},
+{zh:"睡眠",en:"Sleep"},
+{zh:"休眠",en:"Hibernate"},
+{zh:"解除安裝",en:"Uninstall"},
+{zh:"安裝",en:"Install"},
+{zh:"更新",en:"Update"},
+{zh:"升級",en:"Upgrade"}
+]
+},
+{
+category:"👨‍💻 開發軟體常用",
+list:[
+{zh:"建置",en:"Build"},
+{zh:"部署",en:"Deploy"},
+{zh:"偵錯",en:"Debug"},
+{zh:"執行",en:"Run"},
+{zh:"編譯",en:"Compile"},
+{zh:"提交",en:"Commit"},
+{zh:"推送",en:"Push"},
+{zh:"拉取",en:"Pull"},
+{zh:"分支",en:"Branch"},
+{zh:"合併",en:"Merge"}
+]
+}
+];
+
+const contentWrap = document.querySelector('#contentWrap');
+const searchInput = document.querySelector('#searchInput');
+
+function render(keyword=""){
+contentWrap.innerHTML = "";
+const kw = keyword.toLowerCase().trim();
+
+wordData.forEach(cat=>{
+let html = `<div class="category-title">${cat.category}</div><div class="table-wrap"><table><thead><tr><th>中文</th><th>英文（點擊發音）</th></tr></thead><tbody>`;
+let hasItem = false;
+
+cat.list.forEach(item=>{
+const z = item.zh.toLowerCase();
+const e = item.en.toLowerCase();
+const match = (!kw) || z.includes(kw) || e.includes(kw);
+if(match){
+hasItem = true;
+html += `<tr>
+<td>${item.zh}</td>
+<td><span class="en-word" data-text="${item.en}">${item.en}</span></td>
+</tr>`;
+}
+})
+html += `</tbody></table></div>`;
+if(hasItem) contentWrap.insertAdjacentHTML('beforeend', html);
+})
+
+document.querySelectorAll('.en-word').forEach(el=>{
+el.onclick = ()=>{
+speakText(el.dataset.text);
+}
+})
+}
+
+render();
+searchInput.addEventListener('input',e=>render(e.target.value));
+</script>
+</body>
+</html>
