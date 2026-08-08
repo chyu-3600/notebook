@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>冷鍛線長與齒輪計算器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui, -apple-system, sans-serif;transition: background 0.3s, color 0.3s;}
+body{background:#f3f5f8;color:#222;padding-bottom:40px;}
+body.dark{background:#161a23;color:#e8ebf0;}
+
+/* 頂部藍色標題列 */
+.top-bar{
+    background:#2468c8;
+    color:#fff;
+    padding:18px 16px;
+    font-size:20px;
+    font-weight:500;
+    text-align:center;
+    position:sticky;top:0;z-index:10;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.dark-toggle{
+    background:rgba(255,255,255,0.2);
+    border:none;
+    color:#fff;
+    padding:6px 12px;
+    border-radius:8px;
+    font-size:14px;
+}
+
+/* 主容器 */
+.wrap{padding:20px 16px;max-width:700px;margin:0 auto;}
+.title-main{font-size:26px;font-weight:bold;text-align:center;color:#222;margin-bottom:8px;}
+.dark .title-main{color:#f0f3f9;}
+.sub-title{text-align:center;color:#777;font-size:15px;margin-bottom:24px;}
+.dark .sub-title{color:#a0a8b8;}
+
+/* 分頁標籤切換 */
+.tab-box{display:flex;background:#fff;border-radius:10px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 3px #ddd;}
+.dark .tab-box{background:#232936;box-shadow:0 1px 3px #0f1218;}
+.tab-item{flex:1;text-align:center;padding:14px 0;font-size:18px;color:#333;cursor:pointer;transition:0.2s;}
+.dark .tab-item{color:#c5cde0;}
+.tab-item.active{background:#2468c8;color:#fff;}
+
+/* 卡片通用樣式 */
+.card{background:#fff;border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 4px #e2e5ec;}
+.dark .card{background:#232936;box-shadow:0 1px 4px #0f1218;}
+.card-title{font-size:16px;color:#999;margin-bottom:14px;display:block;}
+.dark .card-title{color:#8a94a8;}
+
+/* 輸入列佈局 */
+.input-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f2f6;gap:12px;}
+.dark .input-row{border-bottom:1px solid #333a48;}
+.input-row:last-child{border-bottom:none;}
+.label-text{font-size:17px;color:#222;min-width:120px;}
+.dark .label-text{color:#e0e6f2;}
+.input-wrap{display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end;}
+input{
+    border:1px solid #d1d7e0;
+    border-radius:6px;
+    padding:10px 12px;
+    font-size:16px;
+    width:130px;
+    text-align:right;
+    background:#fff;
+    color:#222;
+}
+.dark input{
+    background:#333a48;
+    border:1px solid #444b5c;
+    color:#e8ebf0;
+}
+.readonly{color:#2468c8;border:none;padding-right:0;width:auto;background:transparent;}
+.tip-light{background:#eef8f3;color:#349c68;text-align:center;padding:10px;border-radius:8px;margin:10px 0;font-size:15px;}
+.dark .tip-light{background:#1e3530;color:#64d8a8;}
+
+/* 計算按鈕 */
+.btn-calc{
+    width:100%;
+    background:#2468c8;
+    color:#fff;
+    border:none;
+    padding:16px;
+    border-radius:10px;
+    font-size:20px;
+    font-weight:500;
+    margin:10px 0 20px;
+}
+
+/* 返回首頁按鈕 */
+.back-home{
+    width:100%;
+    background:#607d8b;
+    color:#fff;
+    text-align:center;
+    display:block;
+    text-decoration:none;
+    padding:14px;
+    border-radius:10px;
+    font-size:17px;
+    margin-top:10px;
+}
+
+/* 公式區域 */
+.formula-text{font-size:18px;margin:10px 0;line-height:1.6;}
+.formula-desc{font-size:14px;color:#555;line-height:1.7;margin:6px 0;}
+.dark .formula-desc{color:#a0a8b8;}
+
+/* 結果區域 */
+.result-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+.result-label{font-size:17px;color:#666;}
+.dark .result-label{color:#a0a8b8;}
+.result-val{font-size:26px;font-weight:bold;color:#111;}
+.dark .result-val{color:#f0f3f9;}
+
+/* 隱藏分頁 */
+.page{display:none;}
+.page.show{display:block;}
+</style>
+</head>
+<body>
+<div class="top-bar">
+    <span></span>
+    <span>線長與齒輪計算</span>
+    <button class="dark-toggle" id="themeBtn">切換深色</button>
+</div>
+<div class="wrap">
+    <h1 class="title-main">冷鍛線長與齒輪計算器</h1>
+    <p class="sub-title">線材長度計算與齒輪參數計算</p>
+
+    <!-- 分頁標籤 -->
+    <div class="tab-box">
+        <div class="tab-item" data-tab="page-line">線長計算</div>
+        <div class="tab-item active" data-tab="page-gear">齒輪計算</div>
+    </div>
+
+    <!-- 頁面1：齒輪計算（預設顯示） -->
+    <div class="page show" id="page-gear">
+        <div class="input-row">
+            <span class="label-text">材料</span>
+            <span class="input-wrap readonly">碳鋼</span>
+        </div>
+        <span class="card-title">參數輸入</span>
+        <div class="input-row">
+            <span class="label-text">機型選擇</span>
+            <span class="input-wrap readonly">24B加長 (240mm)</span>
+        </div>
+        <div class="input-row">
+            <span class="label-text">輸料輪外徑 øD</span>
+            <div class="input-wrap">
+                <input type="number" id="gear-D" value="170">
+                <span>mm</span>
+            </div>
+        </div>
+        <div class="input-row">
+            <span class="label-text">線徑 d</span>
+            <div class="input-wrap">
+                <input type="number" id="gear-d" value="25">
+                <span>mm</span>
+            </div>
+        </div>
+
+        <div class="tip-light">輸入長度或重量其中一個即可</div>
+
+        <div class="input-row">
+            <span class="label-text">料長 L</span>
+            <div class="input-wrap">
+                <input type="number" id="gear-L" value="50">
+                <span>mm</span>
+            </div>
+        </div>
+        <div class="input-row">
+            <span class="label-text">產品重量 W</span>
+            <div class="input-wrap">
+                <input type="number" id="gear-W" placeholder="使用長度計算" disabled>
+                <span>g</span>
+            </div>
+        </div>
+        <div class="input-row">
+            <span class="label-text">機器倍數 M</span>
+            <div class="input-wrap">
+                <input type="number" id="gear-M" value="1">
+            </div>
+        </div>
+
+        <button class="btn-calc" id="calcGearBtn">計算</button>
+
+        <!-- 公式卡片 -->
+        <div class="card">
+            <span class="card-title">計算公式</span>
+            <div class="formula-text">T=(D×2‑d)÷2×3.1416÷L×M</div>
+            <div class="formula-desc">T=齒數, D=輸料輪外徑, d=線徑, L=料長, M=倍數</div>
+            <div class="formula-desc">若輸入重量 : L = (W × 1000) ÷ (密度 × 截面積 × k)</div>
+        </div>
+
+        <!-- 計算結果 -->
+        <div class="card">
+            <span class="card-title">計算結果</span>
+            <div class="result-row">
+                <span class="result-label">齒數 T</span>
+                <span class="result-val" id="result-T">0</span>
+                <span class="result-label">齒</span>
+            </div>
+        </div>
+        <a class="back-home" href="index.html">← 返回首頁</a>
+    </div>
+
+    <!-- 頁面2：線長計算（待擴充） -->
+    <div class="page" id="page-line">
+        <div class="card">
+            <p style="text-align:center;padding:40px;color:#777;font-size:16px;">線材長度計算功能開發中</p>
+        </div>
+        <a class="back-home" href="index.html">← 返回首頁</a>
+    </div>
+</div>
+
+<script>
+// 主題日夜切換 + 本地儲存記憶狀態
+const themeBtn = document.getElementById('themeBtn');
+const body = document.body;
+// 讀取本地儲存主題
+const savedTheme = localStorage.getItem('calcTheme');
+if(savedTheme === 'dark'){
+    body.classList.add('dark');
+    themeBtn.innerText = '切換淺色';
+}
+themeBtn.addEventListener('click',()=>{
+    body.classList.toggle('dark');
+    if(body.classList.contains('dark')){
+        themeBtn.innerText = '切換淺色';
+        localStorage.setItem('calcTheme','dark');
+    }else{
+        themeBtn.innerText = '切換深色';
+        localStorage.setItem('calcTheme','light');
+    }
+})
+
+// 分頁切換邏輯
+const tabs = document.querySelectorAll('.tab-item');
+const pages = document.querySelectorAll('.page');
+tabs.forEach(tab=>{
+    tab.addEventListener('click',()=>{
+        tabs.forEach(t=>t.classList.remove('active'));
+        pages.forEach(p=>p.classList.remove('show'));
+        tab.classList.add('active');
+        const targetId = tab.dataset.tab;
+        document.getElementById(targetId).classList.add('show');
+    })
+})
+
+// 齒輪計算邏輯
+const calcGearBtn = document.getElementById('calcGearBtn');
+const resultT = document.getElementById('result-T');
+function runCalc(){
+    const D = Number(document.getElementById('gear-D').value);
+    const d = Number(document.getElementById('gear-d').value);
+    const L = Number(document.getElementById('gear-L').value);
+    const M = Number(document.getElementById('gear-M').value);
+    const PI = 3.1416;
+    let T = ((D * 2 - d) / 2) * PI / L * M;
+    T = T.toFixed(4);
+    resultT.innerText = T;
+}
+calcGearBtn.addEventListener('click', runCalc);
+// 頁面載入自動計算一次
+window.onload = runCalc;
+</script>
+</body>
+</html>
